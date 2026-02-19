@@ -1,4 +1,5 @@
 package it.euris.orderservices.service;
+import it.euris.common.PageUtils;
 import it.euris.orderservices.dto.interfaces.ProductProxy;
 import it.euris.orderservices.dto.request.OrderRequest;
 import it.euris.orderservices.dto.request.OrderedProduct;
@@ -7,7 +8,11 @@ import it.euris.orderservices.dto.response.PartialTotalPrice;
 import it.euris.orderservices.dto.response.ProductOrderedResponse;
 import it.euris.orderservices.entities.OrderEntity;
 import it.euris.orderservices.repositories.OrderRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
@@ -60,6 +65,19 @@ public class OrderService {
                     return mapToResponseFromEntity(order, products);
                 }
         ).toList();
+
+    }
+
+    public Page<OrderResponse> retrievesOrderPages(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+       final List<OrderResponse> order = this.orderRepository.findAll(pageable).stream().map(orderEntity -> {
+            List<ProductOrderedResponse> products =this.productProxy
+                    .retrievesOrderedProductsById(( orderEntity.getProductIds()));
+            return mapToResponseFromEntity(orderEntity, products);
+        }).toList();
+        return PageUtils.toPage(order, pageable);
+
 
     }
 

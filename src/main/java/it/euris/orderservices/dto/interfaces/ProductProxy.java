@@ -4,8 +4,6 @@ import it.euris.orderservices.dto.request.OrderedProduct;
 import it.euris.orderservices.dto.response.ProductOrderedResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
-
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -19,7 +17,7 @@ public interface ProductProxy {
             @RequestBody List<OrderedProduct>  orderedProductRequests
     );
 
-    @PostMapping(path = "/retrieve-ordered-products-by-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/api/product/retrieve-ordered-products-by-id", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ProductOrderedResponse> retrievesOrderedProductsById(
             @RequestBody List<String>  orderedProductRequests
     );
