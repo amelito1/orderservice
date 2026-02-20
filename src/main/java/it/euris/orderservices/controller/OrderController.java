@@ -2,6 +2,7 @@ package it.euris.orderservices.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.euris.orderservices.dto.request.OrderRequest;
+import it.euris.orderservices.dto.response.OrderChangeStateResponse;
 import it.euris.orderservices.dto.response.OrderResponse;
 import it.euris.orderservices.service.OrderService;
 import jakarta.validation.Valid;
@@ -52,4 +53,13 @@ public class OrderController {
        return ResponseEntity.ok(pages);
     }
 
+    @PostMapping("/{id}/delivered")
+    public ResponseEntity<OrderChangeStateResponse>deliveredOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(this.orderService.orderDelivered(id)) ;
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<OrderChangeStateResponse>cancelOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(this.orderService.cancelOrder(id)) ;
+    }
 }

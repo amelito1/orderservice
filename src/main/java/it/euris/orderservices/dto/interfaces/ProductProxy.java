@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "product")
+@FeignClient(name = "product-service")
 public interface ProductProxy {
 
     @PostMapping(path = "/api/product/retrieve-ordered-products", produces = MediaType.APPLICATION_JSON_VALUE)

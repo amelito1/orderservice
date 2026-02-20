@@ -1,6 +1,8 @@
 package it.euris.orderservices.entities;
 
+import it.euris.orderservices.constants.OrderStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,11 +20,18 @@ public class OrderEntity {
     @Column(updatable = false)
     private long id;
 
-
     private Long customerId;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @ElementCollection
     private List<String> productIds;
 
     private BigDecimal totalPrice;
+
+    public void changeStatus(OrderStatus newStatus) {
+        this.orderStatus = newStatus;
+    }
 }

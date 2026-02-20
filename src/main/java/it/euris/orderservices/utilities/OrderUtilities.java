@@ -13,6 +13,7 @@ public class OrderUtilities {
         return  new OrderResponse(
                 orderEntity.getId(),
                 orderEntity.getCustomerId(),
+                orderEntity.getOrderStatus(),
                 products,
                 orderEntity.getTotalPrice()
         );

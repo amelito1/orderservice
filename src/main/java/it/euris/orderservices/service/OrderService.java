@@ -1,14 +1,19 @@
 package it.euris.orderservices.service;
 import it.euris.common.PageUtils;
+import it.euris.orderservices.components.OrderStateFactory;
+import it.euris.orderservices.constants.OrderStatus;
+import it.euris.orderservices.dto.interfaces.OrderState;
 import it.euris.orderservices.dto.interfaces.ProductProxy;
 import it.euris.orderservices.dto.request.OrderRequest;
 import it.euris.orderservices.dto.request.OrderedProduct;
+import it.euris.orderservices.dto.response.OrderChangeStateResponse;
 import it.euris.orderservices.dto.response.OrderResponse;
 import it.euris.orderservices.dto.response.PartialTotalPrice;
 import it.euris.orderservices.dto.response.ProductOrderedResponse;
 import it.euris.orderservices.entities.OrderEntity;
 import it.euris.orderservices.repositories.OrderRepository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,16 +25,25 @@ import java.util.List;
 import static it.euris.orderservices.utilities.OrderUtilities.mapToResponseFromEntity;
 
 @Service
+@Transactional
 public class OrderService {
 
     @Autowired
     private final OrderRepository orderRepository;
 
     @Autowired
-    private ProductProxy productProxy;
+    private final OrderStateFactory orderStateFactory;
 
-    public OrderService(OrderRepository orderRepository) {
+    @Autowired
+    private final ProductProxy productProxy;
+
+    public OrderService(
+            OrderRepository orderRepository,
+            ProductProxy productProxy,
+            OrderStateFactory orderStateFactory ) {
         this.orderRepository = orderRepository;
+        this.orderStateFactory = orderStateFactory;
+        this.productProxy = productProxy;
     }
 
 
@@ -44,9 +58,12 @@ public class OrderService {
 
         final OrderEntity orderEntity = new OrderEntity();
 
+        final OrderState order = this.orderStateFactory.getState(OrderStatus.ORDERED);
+
         orderEntity.setTotalPrice(totalPrice);
         orderEntity.setCustomerId(orderRequest.getCustomerId());
         orderEntity.setProductIds(productsIds);
+        orderEntity.setOrderStatus(order.getStatus());
 
         final OrderEntity savedOrder = this.orderRepository.save(orderEntity);
 
@@ -77,8 +94,21 @@ public class OrderService {
             return mapToResponseFromEntity(orderEntity, products);
         }).toList();
         return PageUtils.toPage(order, pageable);
+    }
 
+    public OrderChangeStateResponse orderDelivered(Long orderId) {
+        final OrderEntity order = this.getOrder(orderId);
 
+        this.orderStateFactory.getState(order.getOrderStatus()).delivered(order);
+
+        return new OrderChangeStateResponse(order.getId(), order.getOrderStatus());
+    }
+
+    public OrderChangeStateResponse cancelOrder(Long orderId) {
+        OrderEntity order = getOrder(orderId);
+        orderStateFactory.getState(order.getOrderStatus()).cancelled(order);
+
+        return  new OrderChangeStateResponse(order.getId(), order.getOrderStatus());
     }
 
     private PartialTotalPrice calculateTotalPricePerProduct(OrderedProduct orderedProduct) {
@@ -103,5 +133,10 @@ public class OrderService {
         return orderRequest
                 .getOrderedProducts()
                 .stream().map(product -> product.getProductId().toString()).toList();
+    }
+
+    private OrderEntity getOrder(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 }
