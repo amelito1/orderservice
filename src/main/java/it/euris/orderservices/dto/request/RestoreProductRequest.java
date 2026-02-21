@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class OrderedProduct extends CommonOrderedProduct {
-   private BigDecimal productUnitPrice;
+public class RestoreProductRequest extends CommonOrderedProduct {
+    public RestoreProductRequest(Long productId, BigDecimal quantity) {
+        super();
+    }
 }

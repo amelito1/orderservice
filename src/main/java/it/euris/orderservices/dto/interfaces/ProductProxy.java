@@ -1,6 +1,7 @@
 package it.euris.orderservices.dto.interfaces;
 
 import it.euris.orderservices.dto.request.OrderedProduct;
+import it.euris.orderservices.dto.request.RestoreProductRequest;
 import it.euris.orderservices.dto.response.ProductOrderedResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -18,7 +19,12 @@ public interface ProductProxy {
     );
 
     @PostMapping(path = "/api/product/retrieve-ordered-products-by-id", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ProductOrderedResponse> retrievesOrderedProductsById(
+    List<ProductOrderedResponse> retrievesOrderedProductsById(
             @RequestBody List<String>  orderedProductRequests
+    );
+
+    @PostMapping(path = "/api/product/update-canceled-product-order", produces = MediaType.APPLICATION_JSON_VALUE)
+    void restoreCanceledQuantityProducts(
+            @RequestBody List<RestoreProductRequest>  orderedProductRequests
     );
 }

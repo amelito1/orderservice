@@ -1,5 +1,6 @@
 package it.euris.orderservices.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import it.euris.orderservices.constants.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,10 +28,12 @@ public class OrderEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @ElementCollection
-    private List<String> productIds;
 
     private BigDecimal totalPrice;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderedProductEntity> orderedProduct = new ArrayList<>();
 
     public void changeStatus(OrderStatus newStatus) {
         this.orderStatus = newStatus;

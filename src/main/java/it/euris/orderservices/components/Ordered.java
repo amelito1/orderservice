@@ -15,7 +15,7 @@ public class Ordered implements OrderState {
     @Override
     public void delivered(OrderEntity order) {
 
-        throw new IllegalStateException("Cannot delivered unordered order");
+      order.setOrderStatus(OrderStatus.DELIVERED);
 
     }
 
