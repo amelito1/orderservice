@@ -148,13 +148,20 @@ public class OrderService {
 
         orderStateFactory.getState(order.getOrderStatus()).cancelled(order);
 
-       List<RestoreProductRequest> productToRestore = order.getOrderedProduct()
+        List<RestoreProductRequest> productToRestore = order.getOrderedProduct()
                 .stream()
                 .map(
                         or ->
-                                new RestoreProductRequest(or.getProductId(), or.getQuantity())).toList();
+                        {
+                            var product = new RestoreProductRequest();
+                            product.setProductId(or.getProductId());
+                            product.setProductQuantity(or.getQuantity());
+                            return product;
+                        }).toList();
 
-        this.handleOrderCancelled(productToRestore );
+      List<Integer> p =  this.productProxy.restoreCanceledQuantityProducts(productToRestore);
+
+
 
         return  new OrderChangeStateResponse(order.getId(), order.getOrderStatus());
     }

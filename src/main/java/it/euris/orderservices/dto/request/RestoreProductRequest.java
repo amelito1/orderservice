@@ -9,7 +9,4 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class RestoreProductRequest extends CommonOrderedProduct {
-    public RestoreProductRequest(Long productId, double quantity) {
-        super();
-    }
 }
