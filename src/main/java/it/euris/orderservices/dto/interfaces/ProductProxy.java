@@ -18,13 +18,8 @@ public interface ProductProxy {
             @RequestBody List<OrderedProduct>  orderedProductRequests
     );
 
-    @PostMapping(path = "/api/product/retrieve-ordered-products-by-id", produces = MediaType.APPLICATION_JSON_VALUE)
-    List<ProductOrderedResponse> retrievesOrderedProductsById(
-            @RequestBody List<String>  orderedProductRequests
-    );
-
     @PostMapping(path = "/api/product/update-canceled-product-order", produces = MediaType.APPLICATION_JSON_VALUE)
-    void restoreCanceledQuantityProducts(
+    List<Integer> restoreCanceledQuantityProducts(
             @RequestBody List<RestoreProductRequest>  orderedProductRequests
     );
 }

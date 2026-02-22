@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public abstract  class  CommonOrderedProduct {
     private Long productId;
-    private Long productQuantity;
+    private Double productQuantity;
 
 
 }

@@ -2,6 +2,7 @@ package it.euris.orderservices.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,9 +17,16 @@ public class OrderedProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long productId;
 
-    private BigDecimal quantity;
+    @NotNull
+    private double quantity;
+
+    @NotNull
+    private String productName;
+
+    private BigDecimal unitPrice;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)

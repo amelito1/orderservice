@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public record PartialTotalPrice(@NotNull  long productId, @NotNull BigDecimal totalPrice) {
+public record PartialTotalPrice(@NotNull  long productId, @NotNull BigDecimal partialPrice) {
 }

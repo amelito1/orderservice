@@ -9,6 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 
+
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,9 @@ public class OrderController {
 
     @Autowired
     private final OrderService orderService;
+
+    @Autowired
+    private PagedResourcesAssembler assembler;
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
@@ -46,11 +52,13 @@ public class OrderController {
     }
 
     @GetMapping(path = "/retrieve-orders-pages", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<OrderResponse>> retrieveOrdersPages(@RequestParam int page,
-                                                                   @RequestParam int size) {
+    public ResponseEntity<PagedModel> retrieveOrdersPages(@RequestParam int page,
+                                                          @RequestParam int size) {
        final Page<OrderResponse> pages = this.orderService.retrievesOrderPages(page, size);
 
-       return ResponseEntity.ok(pages);
+
+
+       return ResponseEntity.ok(this.assembler.toModel(pages));
     }
 
     @PostMapping("/{id}/delivered")
