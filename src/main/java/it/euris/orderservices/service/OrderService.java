@@ -13,7 +13,6 @@ import it.euris.orderservices.dto.response.ProductOrderedResponse;
 import it.euris.orderservices.entities.OrderEntity;
 import it.euris.orderservices.entities.OrderedProductEntity;
 import it.euris.orderservices.repositories.OrderRepository;
-import it.euris.orderservices.repositories.OrderedProductRepository;
 import it.euris.orderservices.utilities.OrderUtilities;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -48,8 +45,7 @@ public class OrderService {
     public OrderService(
             OrderRepository orderRepository,
             ProductProxy productProxy,
-            OrderStateFactory orderStateFactory,
-            OrderedProductRepository orderedProductRepository
+            OrderStateFactory orderStateFactory
     ) {
         this.orderRepository = orderRepository;
         this.orderStateFactory = orderStateFactory;
@@ -62,14 +58,11 @@ public class OrderService {
         final List<ProductOrderedResponse> orderedResponses = this.productProxy
                 .retrievesOrderedProducts(( orderRequest.getOrderedProducts()));
 
-
         final BigDecimal totalPrice = this.calculateTotalPriceProduct(orderedResponses);
 
         final OrderEntity orderEntity = new OrderEntity();
 
-
         final OrderState order = this.orderStateFactory.getState(OrderStatus.ORDERED);
-
 
         orderEntity.setTotalPrice(totalPrice);
 
@@ -127,8 +120,11 @@ public class OrderService {
        final List<OrderResponse> orderEntities = this.orderRepository
                .findAll(pageable)
                .stream().map(orderEntity -> {
-
-                 final List<ProductOrderedResponse> products = orderEntity.getOrderedProduct().stream().map(OrderUtilities::mapToOrderedProduct).toList();
+                 final List<ProductOrderedResponse> products = orderEntity
+                         .getOrderedProduct()
+                         .stream()
+                         .map(OrderUtilities::mapToOrderedProduct)
+                         .toList();
                  return OrderUtilities.mapToResponseFromEntity(orderEntity, products);
                }).toList();
 
@@ -159,9 +155,7 @@ public class OrderService {
                             return product;
                         }).toList();
 
-      List<Integer> p =  this.productProxy.restoreCanceledQuantityProducts(productToRestore);
-
-
+     this.productProxy.restoreCanceledQuantityProducts(productToRestore);
 
         return  new OrderChangeStateResponse(order.getId(), order.getOrderStatus());
     }
@@ -183,19 +177,9 @@ public class OrderService {
                         BigDecimal::add);
     }
 
-    private List<String> retrieveProductIdsFromRequest(OrderRequest orderRequest) {
-        return orderRequest
-                .getOrderedProducts()
-                .stream().map(product -> product.getProductId().toString()).toList();
-    }
-
     private OrderEntity getOrder(Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public List<Integer> handleOrderCancelled(List<RestoreProductRequest> orderToRestore) {
-        return this.productProxy.restoreCanceledQuantityProducts(orderToRestore);
-    }
 }

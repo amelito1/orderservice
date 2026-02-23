@@ -22,7 +22,6 @@ public class OrderedProductEntity {
 
     @NotNull
     private double quantity;
-
     @NotNull
     private String productName;
 

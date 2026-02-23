@@ -1,7 +1,6 @@
 package it.euris.orderservices.dto.interfaces;
 
 import it.euris.orderservices.constants.OrderStatus;
-import it.euris.orderservices.dto.request.OrderRequest;
 import it.euris.orderservices.entities.OrderEntity;
 
 public interface OrderState {
